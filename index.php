@@ -1,69 +1,49 @@
 <?php
+require_once("login.php");
+require_once("style.css");
 
-class car {
 
- private $color;
- private $make;
- private $name;
 
-public function __construct ($newColor, $newMake, $newName) {
-   $this->setColor($newColor);
-   $this->setMake($newMake);
-   $this->setName($newName);
- }
+try {
 
-public function setColor($newColor) {
-     $this->color = $newColor;
-     return;
+// set up dsn
+$dsn = 'mysql:host=' . $config["hostname"] . ';dbname=' . $config["database"];
+$options = array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8");
+
+//set up pdo connection with database and set error attributes
+$pdo = new PDO($dsn, $config["username"], $config["password"], $options);
+$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+// setup query and execute
+$query = 'SELECT userId, userName, userEmail, dateCreated FROM user';
+$statement = $pdo->prepare($query);
+$statement->execute();
+$statement->setFetchMode(PDO::FETCH_ASSOC);
+
+// setup table and table headers
+echo "<table>";
+echo "<tr>";
+echo "<th>User ID</th>";
+echo "<th>User Name</th>";
+echo "<th>User Email</th>";
+echo "<th>Date Created</th>";
+echo "</tr>";
+
+while(($row = $statement->fetch()) !== false) {
+ echo "<tr>";
+ echo ("<td>" . $row["userId"] . "</td>");
+ echo ("<td>" . $row["userName"] . "</td>");
+ echo ("<td>" . $row["userEmail"] . "</td>");
+ echo ("<td>" . $row["dateCreated"] . "</td>");
+ echo "</tr>";
+}
+echo "</table>";  // end table
+
+$pdo = null;
+
+} catch (Execption $e) {
+  echo $e->getMessage();
 }
 
-public function setMake($newMake) {
-      $this->make = $newMake;
-      return;
-}
 
-public function setName($newName) {
-      $this->name = $newName;
-      return;
-}
-
-public function getColor() {
-            return ($this->color);
-}
-
-public function getMake($newMake) {
-    return ($this->make);
-}
-
-public function getName() {
-    return ($this->name);
-}
-
-public function go() {
-   echo  $this->name . "car going";
-   return;
-}
-
- public function stop() {
-   echo $this->name . "car stopping";
-}
-
-}
-
-$fordCar =new Car ("blue", "ford", "fordCar");
-$toyCar = new Car ("red", "toyota", "toyCar");
-
-echo $fordCar->getColor() . "<br>";
-
-echo $toyCar->getColor() . "<br>";
-
-echo $fordCar->go() . "<br>";
-
-echo $toyCar->go() . "<br>";
-
-echo $toyCar->stop() . "<br>";
-
-echo $fordCar->stop() . "<br>";
-
-echo $toyCar->getName() . "<br>";
 ?>
